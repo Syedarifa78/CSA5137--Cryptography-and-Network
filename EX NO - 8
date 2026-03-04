@@ -1,0 +1,51 @@
+import string
+
+alphabet = string.ascii_lowercase
+keyword = "cipher"
+
+# remove duplicate letters in keyword
+key = ""
+for char in keyword:
+    if char not in key:
+        key += char
+
+# generate cipher alphabet
+for char in alphabet:
+    if char not in key:
+        key += char
+
+print("Plain :", " ".join(alphabet))
+print("Cipher:", " ".join(key))
+
+
+# encryption
+def encrypt(text):
+    result = ""
+    for char in text.lower():
+        if char in alphabet:
+            index = alphabet.index(char)
+            result += key[index]
+        else:
+            result += char
+    return result
+
+
+# decryption
+def decrypt(text):
+    result = ""
+    for char in text.lower():
+        if char in key:
+            index = key.index(char)
+            result += alphabet[index]
+        else:
+            result += char
+    return result
+
+
+text = input("Enter plaintext: ")
+
+cipher = encrypt(text)
+plain = decrypt(cipher)
+
+print("Encrypted Text:", cipher)
+print("Decrypted Text:", plain)
