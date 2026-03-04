@@ -1,0 +1,34 @@
+plain = "abcdefghijklmnopqrstuvwxyz"
+cipher = "qwertyuiopasdfghjklzxcvbnm"
+
+# Encryption function
+def encrypt(text):
+    result = ""
+    for char in text.lower():
+        if char in plain:
+            index = plain.index(char)
+            result += cipher[index]
+        else:
+            result += char
+    return result
+
+# Decryption function
+def decrypt(text):
+    result = ""
+    for char in text.lower():
+        if char in cipher:
+            index = cipher.index(char)
+            result += plain[index]
+        else:
+            result += char
+    return result
+
+
+# Input
+text = input("Enter the plaintext: ")
+
+encrypted = encrypt(text)
+decrypted = decrypt(encrypted)
+
+print("Encrypted Text:", encrypted)
+print("Decrypted Text:", decrypted)
