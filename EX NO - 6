@@ -1,0 +1,33 @@
+import string
+
+alphabet = string.ascii_uppercase
+
+# modular inverse
+def mod_inverse(a, m):
+    for i in range(m):
+        if (a * i) % m == 1:
+            return i
+
+def affine_decrypt(cipher, a, b):
+    result = ""
+    a_inv = mod_inverse(a, 26)
+
+    for char in cipher:
+        if char in alphabet:
+            c = ord(char) - ord('A')
+            p = (a_inv * (c - b)) % 26
+            result += chr(p + ord('A'))
+        else:
+            result += char
+
+    return result
+
+
+# Found keys from frequency analysis
+a = 3
+b = 15
+
+cipher = input("Enter ciphertext: ")
+
+print("Key found: a =", a, " b =", b)
+print("Decrypted text:", affine_decrypt(cipher, a, b))
