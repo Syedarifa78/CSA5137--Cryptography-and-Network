@@ -1,0 +1,43 @@
+# Polyalphabetic Substitution Cipher (Vigenere Cipher)
+
+def encrypt(text, key):
+    result = ""
+    key = key.lower()
+    k = 0
+
+    for char in text.lower():
+        if char.isalpha():
+            shift = ord(key[k % len(key)]) - ord('a')
+            enc = chr((ord(char) - ord('a') + shift) % 26 + ord('a'))
+            result += enc
+            k += 1
+        else:
+            result += char
+    return result
+
+
+def decrypt(cipher, key):
+    result = ""
+    key = key.lower()
+    k = 0
+
+    for char in cipher.lower():
+        if char.isalpha():
+            shift = ord(key[k % len(key)]) - ord('a')
+            dec = chr((ord(char) - ord('a') - shift) % 26 + ord('a'))
+            result += dec
+            k += 1
+        else:
+            result += char
+    return result
+
+
+# Input
+text = input("Enter plaintext: ")
+key = input("Enter key: ")
+
+cipher = encrypt(text, key)
+plain = decrypt(cipher, key)
+
+print("Encrypted Text:", cipher)
+print("Decrypted Text:", plain)
