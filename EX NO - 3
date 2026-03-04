@@ -1,0 +1,83 @@
+# Playfair Cipher Program
+
+def generate_matrix(key):
+    key = key.upper().replace("J", "I")
+    matrix = []
+    used = ""
+
+    for char in key:
+        if char not in used and char.isalpha():
+            used += char
+
+    for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":
+        if char not in used:
+            used += char
+
+    for i in range(0, 25, 5):
+        matrix.append(list(used[i:i+5]))
+
+    return matrix
+
+
+def find_position(matrix, char):
+    for i in range(5):
+        for j in range(5):
+            if matrix[i][j] == char:
+                return i, j
+
+
+def playfair_encrypt(text, matrix):
+    text = text.upper().replace("J", "I")
+    pairs = []
+    i = 0
+
+    while i < len(text):
+        a = text[i]
+        b = ""
+
+        if i + 1 < len(text):
+            b = text[i + 1]
+
+        if a == b:
+            pairs.append(a + "X")
+            i += 1
+        else:
+            if b == "":
+                b = "X"
+            pairs.append(a + b)
+            i += 2
+
+    cipher = ""
+
+    for pair in pairs:
+        r1, c1 = find_position(matrix, pair[0])
+        r2, c2 = find_position(matrix, pair[1])
+
+        if r1 == r2:
+            cipher += matrix[r1][(c1 + 1) % 5]
+            cipher += matrix[r2][(c2 + 1) % 5]
+
+        elif c1 == c2:
+            cipher += matrix[(r1 + 1) % 5][c1]
+            cipher += matrix[(r2 + 1) % 5][c2]
+
+        else:
+            cipher += matrix[r1][c2]
+            cipher += matrix[r2][c1]
+
+    return cipher
+
+
+# Input
+key = input("Enter keyword: ")
+text = input("Enter plaintext: ")
+
+matrix = generate_matrix(key)
+
+print("Playfair Matrix:")
+for row in matrix:
+    print(row)
+
+cipher = playfair_encrypt(text, matrix)
+
+print("Encrypted Text:", cipher)
