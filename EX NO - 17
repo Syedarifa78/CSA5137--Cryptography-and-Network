@@ -1,0 +1,48 @@
+# DES Key Generation (for Decryption)
+
+# Shift schedule used in DES
+shift_schedule = [1, 1, 2, 2, 2, 2, 2, 2,
+                  1, 2, 2, 2, 2, 2, 2, 1]
+
+# left circular shift
+def left_shift(bits, n):
+    return bits[n:] + bits[:n]
+
+
+# generate 16 round keys
+def generate_keys(key):
+
+    # split key into two halves
+    C = key[:28]
+    D = key[28:]
+
+    round_keys = []
+
+    for i in range(16):
+
+        # apply left shift
+        C = left_shift(C, shift_schedule[i])
+        D = left_shift(D, shift_schedule[i])
+
+        combined = C + D
+
+        round_keys.append(combined)
+
+    return round_keys
+
+
+# example 56-bit key
+key = "10101010101110110000100100011000001001110011011011001100"
+
+round_keys = generate_keys(key)
+
+print("Encryption Round Keys:")
+for i,k in enumerate(round_keys):
+    print("K",i+1,"=",k)
+
+# reverse keys for decryption
+decrypt_keys = round_keys[::-1]
+
+print("\nDecryption Round Keys:")
+for i,k in enumerate(decrypt_keys):
+    print("K",i+1,"=",k)
