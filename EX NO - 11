@@ -1,0 +1,18 @@
+import math
+
+# total possible keys
+total_keys = math.factorial(25)
+
+# approximate power of 2
+power = math.log2(total_keys)
+
+print("Total possible Playfair keys:", total_keys)
+print("Approximate power of 2: 2^", round(power))
+
+# effective unique keys
+effective_keys = total_keys / ((math.factorial(5))**2)
+
+power2 = math.log2(effective_keys)
+
+print("\nEffective unique keys:", int(effective_keys))
+print("Approximate power of 2: 2^", round(power2))
