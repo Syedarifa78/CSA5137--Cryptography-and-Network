@@ -1,0 +1,39 @@
+import numpy as np
+
+# convert letters to numbers
+def text_to_numbers(text):
+    return [ord(c) - ord('A') for c in text]
+
+# modular inverse of determinant
+def mod_inverse(a, m):
+    for i in range(1, m):
+        if (a * i) % m == 1:
+            return i
+    return None
+
+# matrix inverse mod 26
+def matrix_mod_inverse(matrix, mod):
+    det = int(round(np.linalg.det(matrix)))
+    det = det % mod
+
+    det_inv = mod_inverse(det, mod)
+
+    adj = np.round(det * np.linalg.inv(matrix)).astype(int) % mod
+
+    return (det_inv * adj) % mod
+
+
+# known plaintext and ciphertext
+plaintext = "HELP"
+ciphertext = "ZEBB"
+
+P = np.array(text_to_numbers(plaintext)).reshape(2,2)
+C = np.array(text_to_numbers(ciphertext)).reshape(2,2)
+
+P_inv = matrix_mod_inverse(P,26)
+
+K = np.dot(C,P_inv) % 26
+
+print("Plaintext Matrix:\n",P)
+print("\nCiphertext Matrix:\n",C)
+print("\nRecovered Key Matrix:\n",K)
