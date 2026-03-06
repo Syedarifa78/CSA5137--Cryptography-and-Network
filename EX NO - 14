@@ -1,0 +1,28 @@
+import random
+
+# convert text to numbers
+def text_to_numbers(text):
+    return [ord(c) - ord('A') for c in text]
+
+# convert numbers to text
+def numbers_to_text(nums):
+    return ''.join(chr(n + ord('A')) for n in nums)
+
+plaintext = input("Enter plaintext: ").upper().replace(" ", "")
+
+# generate random key
+key = [random.randint(0,25) for _ in plaintext]
+
+P = text_to_numbers(plaintext)
+
+# encryption
+cipher_nums = [(P[i] + key[i]) % 26 for i in range(len(P))]
+ciphertext = numbers_to_text(cipher_nums)
+
+# decryption
+plain_nums = [(cipher_nums[i] - key[i]) % 26 for i in range(len(cipher_nums))]
+decrypted = numbers_to_text(plain_nums)
+
+print("\nRandom Key:", key)
+print("Ciphertext:", ciphertext)
+print("Decrypted Text:", decrypted)
