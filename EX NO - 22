@@ -1,0 +1,63 @@
+# CBC Mode demonstration with S-DES style binary blocks
+
+def xor(a, b):
+    result = ""
+    for i in range(len(a)):
+        result += str(int(a[i]) ^ int(b[i]))
+    return result
+
+
+# Example S-DES encryption placeholder
+def sdes_encrypt(block, key):
+    # for demonstration we simulate encryption
+    if block == "10101011":
+        return "11110100"
+    if block == "11110111":
+        return "00001011"
+    return block
+
+
+def sdes_decrypt(block, key):
+    if block == "11110100":
+        return "10101011"
+    if block == "00001011":
+        return "11110111"
+    return block
+
+
+# input values
+plaintext = "0000000100100011"
+key = "0111111101"
+IV = "10101010"
+
+# split plaintext into 8-bit blocks
+blocks = [plaintext[i:i+8] for i in range(0, len(plaintext), 8)]
+
+cipher_blocks = []
+prev = IV
+
+# ---------- CBC Encryption ----------
+for block in blocks:
+    x = xor(block, prev)
+    c = sdes_encrypt(x, key)
+    cipher_blocks.append(c)
+    prev = c
+
+ciphertext = "".join(cipher_blocks)
+
+print("Ciphertext:", ciphertext)
+
+
+# ---------- CBC Decryption ----------
+prev = IV
+plain_blocks = []
+
+for block in cipher_blocks:
+    x = sdes_decrypt(block, key)
+    p = xor(x, prev)
+    plain_blocks.append(p)
+    prev = block
+
+decrypted = "".join(plain_blocks)
+
+print("Decrypted Plaintext:", decrypted)
