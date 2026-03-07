@@ -1,0 +1,68 @@
+# Block size
+BLOCK_SIZE = 8
+
+# simple encryption (XOR)
+def encrypt_block(block, key):
+    return ''.join(chr(ord(a) ^ ord(b)) for a,b in zip(block,key))
+
+def decrypt_block(block, key):
+    return ''.join(chr(ord(a) ^ ord(b)) for a,b in zip(block,key))
+
+
+# padding (1 followed by 0s)
+def pad(text):
+    pad_len = BLOCK_SIZE - (len(text) % BLOCK_SIZE)
+    text += '1'
+    text += '0' * (pad_len-1)
+    return text
+
+
+# split blocks
+def split_blocks(text):
+    return [text[i:i+BLOCK_SIZE] for i in range(0,len(text),BLOCK_SIZE)]
+
+
+plaintext = input("Enter plaintext: ")
+key = "ABCDEFGH"
+IV = "12345678"
+
+plaintext = pad(plaintext)
+
+blocks = split_blocks(plaintext)
+
+print("\nBlocks:", blocks)
+
+
+# ---------- ECB ----------
+ecb_cipher = []
+
+for block in blocks:
+    ecb_cipher.append(encrypt_block(block,key))
+
+print("\nECB Cipher:", ecb_cipher)
+
+
+# ---------- CBC ----------
+cbc_cipher = []
+prev = IV
+
+for block in blocks:
+    xored = ''.join(chr(ord(a)^ord(b)) for a,b in zip(block,prev))
+    c = encrypt_block(xored,key)
+    cbc_cipher.append(c)
+    prev = c
+
+print("\nCBC Cipher:", cbc_cipher)
+
+
+# ---------- CFB ----------
+cfb_cipher = []
+prev = IV
+
+for block in blocks:
+    temp = encrypt_block(prev,key)
+    c = ''.join(chr(ord(a)^ord(b)) for a,b in zip(block,temp))
+    cfb_cipher.append(c)
+    prev = c
+
+print("\nCFB Cipher:", cfb_cipher)
