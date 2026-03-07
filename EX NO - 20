@@ -1,0 +1,55 @@
+# Demonstration of ECB and CBC error propagation
+
+def simple_encrypt(block, key):
+    # simple XOR encryption for demonstration
+    return ''.join(chr(ord(a) ^ ord(key)) for a in block)
+
+def simple_decrypt(block, key):
+    return ''.join(chr(ord(a) ^ ord(key)) for a in block)
+
+
+plaintext = ["P1","P2","P3","P4"]
+key = "K"
+
+print("Original Plaintext Blocks:", plaintext)
+
+# -------- ECB MODE --------
+cipher_ecb = []
+
+for p in plaintext:
+    cipher_ecb.append(simple_encrypt(p,key))
+
+# introduce error in first ciphertext block
+cipher_ecb[0] = "XX"
+
+decrypt_ecb = []
+
+for c in cipher_ecb:
+    decrypt_ecb.append(simple_decrypt(c,key))
+
+print("\nECB Decrypted Blocks:", decrypt_ecb)
+
+
+# -------- CBC MODE --------
+cipher_cbc = []
+prev = "00"
+
+for p in plaintext:
+    xored = ''.join(chr(ord(a)^ord(b)) for a,b in zip(p,prev))
+    c = simple_encrypt(xored,key)
+    cipher_cbc.append(c)
+    prev = c
+
+# introduce error in C1
+cipher_cbc[0] = "XX"
+
+decrypt_cbc = []
+prev = "00"
+
+for c in cipher_cbc:
+    temp = simple_decrypt(c,key)
+    p = ''.join(chr(ord(a)^ord(b)) for a,b in zip(temp,prev))
+    decrypt_cbc.append(p)
+    prev = c
+
+print("\nCBC Decrypted Blocks:", decrypt_cbc)
