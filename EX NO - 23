@@ -1,0 +1,52 @@
+# XOR function
+def xor(a, b):
+    result = ""
+    for i in range(len(a)):
+        result += str(int(a[i]) ^ int(b[i]))
+    return result
+
+
+# Example S-DES encryption (simplified for test data)
+def sdes_encrypt(block, key):
+    table = {
+        "00000000": "00111001",
+        "00000001": "01001101",
+        "00000010": "00110110"
+    }
+    return table.get(block, block)
+
+
+# convert integer counter to 8-bit binary
+def counter_to_bin(c):
+    return format(c, '08b')
+
+
+plaintext = ["00000001", "00000010", "00000100"]
+key = "0111111101"
+
+counter = 0
+cipher = []
+
+# -------- Encryption --------
+for block in plaintext:
+    ctr = counter_to_bin(counter)
+    keystream = sdes_encrypt(ctr, key)
+    c = xor(block, keystream)
+    cipher.append(c)
+    counter += 1
+
+print("Ciphertext:", " ".join(cipher))
+
+
+# -------- Decryption --------
+counter = 0
+decrypted = []
+
+for block in cipher:
+    ctr = counter_to_bin(counter)
+    keystream = sdes_encrypt(ctr, key)
+    p = xor(block, keystream)
+    decrypted.append(p)
+    counter += 1
+
+print("Decrypted Plaintext:", " ".join(decrypted))
