@@ -1,0 +1,32 @@
+import math
+
+# public values
+n = int(input("Enter modulus n: "))
+e = int(input("Enter public key e: "))
+d = int(input("Enter leaked private key d: "))
+
+# compute k = ed - 1
+k = e * d - 1
+
+print("k =", k)
+
+# attempt to find phi(n)
+for i in range(1,100000):
+    
+    if k % i == 0:
+        phi = k // i
+        
+        # try solving quadratic to get p and q
+        b = n - phi + 1
+        
+        discriminant = b*b - 4*n
+        
+        if discriminant >= 0:
+            p = (b + int(math.sqrt(discriminant))) // 2
+            q = (b - int(math.sqrt(discriminant))) // 2
+            
+            if p*q == n:
+                print("Possible factors found")
+                print("p =",p)
+                print("q =",q)
+                break
