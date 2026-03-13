@@ -1,0 +1,31 @@
+import math
+
+# public key
+n = int(input("Enter n: "))
+e = int(input("Enter public key e: "))
+
+# suspected plaintext block
+m = int(input("Enter plaintext block: "))
+
+# check common factor
+p = math.gcd(m, n)
+
+if p > 1 and p < n:
+    q = n // p
+    
+    print("Factor found!")
+    print("p =", p)
+    print("q =", q)
+
+    # compute phi
+    phi = (p-1)*(q-1)
+
+    # find modular inverse
+    for d in range(1, phi):
+        if (e*d) % phi == 1:
+            break
+
+    print("Private key d =", d)
+
+else:
+    print("No useful factor found.")
