@@ -1,0 +1,28 @@
+# Simple CBC-MAC demonstration
+
+def encrypt(block, key):
+    # Simple XOR "encryption" (for demonstration only)
+    return block ^ key
+
+def cbc_mac(message_blocks, key):
+    iv = 0
+    prev = iv
+    
+    for block in message_blocks:
+        prev = encrypt(block ^ prev, key)
+    
+    return prev
+
+# Example values
+K = 9
+X = 12
+
+# Step 1: MAC of single block
+T = cbc_mac([X], K)
+
+# Step 2: Forge new message
+X2 = X ^ T
+forged_mac = cbc_mac([X, X2], K)
+
+print("Original MAC:", T)
+print("Forged MAC:", forged_mac)
