@@ -1,0 +1,98 @@
+import itertools
+from collections import Counter
+
+# English letter frequency (approx order)
+ENGLISH_FREQ_ORDER = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+
+# Common English bigrams (for scoring)
+COMMON_BIGRAMS = [
+    "TH","HE","IN","ER","AN","RE","ON","AT","EN","ND",
+    "TI","ES","OR","TE","OF","ED","IS","IT","AL","AR"
+]
+
+# Common English words (for scoring)
+COMMON_WORDS = ["THE", "AND", "TO", "OF", "IN", "IS", "YOU", "THAT"]
+
+def clean_text(text):
+    return ''.join([c for c in text.upper() if c.isalpha()])
+
+
+# Step 1: Frequency mapping
+def initial_mapping(ciphertext):
+    freq = Counter(ciphertext)
+    sorted_cipher = ''.join([x[0] for x in freq.most_common()])
+    
+    mapping = {}
+    for i, c in enumerate(sorted_cipher):
+        if i < len(ENGLISH_FREQ_ORDER):
+            mapping[c] = ENGLISH_FREQ_ORDER[i]
+    
+    return mapping
+
+
+# Apply substitution
+def decrypt_with_mapping(ciphertext, mapping):
+    return ''.join([mapping.get(c, c) for c in ciphertext])
+
+
+# Scoring function
+def score_text(text):
+    score = 0
+    
+    # Bigram scoring
+    for bg in COMMON_BIGRAMS:
+        score += text.count(bg) * 2
+    
+    # Word scoring
+    for word in COMMON_WORDS:
+        score += text.count(word) * 5
+    
+    return score
+
+
+# Improve mapping using swaps
+def improve_mapping(ciphertext, base_mapping, top_n=10):
+    candidates = []
+
+    letters = list(base_mapping.keys())
+
+    # Try swapping pairs of mappings
+    for a, b in itertools.combinations(letters, 2):
+        new_mapping = base_mapping.copy()
+        new_mapping[a], new_mapping[b] = new_mapping[b], new_mapping[a]
+
+        decrypted = decrypt_with_mapping(ciphertext, new_mapping)
+        score = score_text(decrypted)
+
+        candidates.append((score, decrypted))
+
+    # Sort by score (highest first)
+    candidates.sort(reverse=True)
+
+    return candidates[:top_n]
+
+
+# Main function
+def frequency_attack(ciphertext, top_n=10):
+    ciphertext = clean_text(ciphertext)
+
+    base_map = initial_mapping(ciphertext)
+    base_plain = decrypt_with_mapping(ciphertext, base_map)
+
+    results = [(score_text(base_plain), base_plain)]
+
+    improved = improve_mapping(ciphertext, base_map, top_n)
+    results.extend(improved)
+
+    results.sort(reverse=True)
+
+    return results[:top_n]
+
+
+# 🔹 Example usage
+ciphertext = "ZOLSSV DVYSK"  # Example (HELLO WORLD encrypted)
+
+results = frequency_attack(ciphertext, top_n=5)
+
+for i, (score, text) in enumerate(results):
+    print(f"{i+1}. Score={score} -> {text}")
