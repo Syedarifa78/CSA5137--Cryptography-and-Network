@@ -1,0 +1,23 @@
+# SHA-3 simplified simulation (NO permutation)
+
+# Total state = 1600 bits
+state = [0] * 1600
+
+# Block size (rate)
+r = 1024
+
+# Message block P0 (assume all lanes have at least one non-zero bit)
+P0 = [1] * r   # simplified: all bits = 1
+
+# Absorb step (XOR into rate portion only)
+for i in range(r):
+    state[i] ^= P0[i]
+
+# Check capacity portion (bits 1024 to 1599)
+capacity = state[r:]
+
+# Check if any non-zero bit exists in capacity
+if any(capacity):
+    print("Capacity has non-zero bits")
+else:
+    print("Capacity is still all zeros")
