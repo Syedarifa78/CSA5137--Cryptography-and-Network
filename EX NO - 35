@@ -1,0 +1,51 @@
+import random
+
+# Convert letter to number (A=0, ..., Z=25)
+def char_to_num(c):
+    return ord(c) - ord('A')
+
+# Convert number to letter
+def num_to_char(n):
+    return chr(n + ord('A'))
+
+# Generate random key (same length as plaintext)
+def generate_key(length):
+    return [random.randint(0, 25) for _ in range(length)]
+
+# Encryption
+def encrypt(plaintext, key):
+    plaintext = plaintext.upper().replace(" ", "")
+    cipher = ""
+
+    for i in range(len(plaintext)):
+        p = char_to_num(plaintext[i])
+        k = key[i]
+        c = (p + k) % 26
+        cipher += num_to_char(c)
+
+    return cipher
+
+# Decryption
+def decrypt(ciphertext, key):
+    plaintext = ""
+
+    for i in range(len(ciphertext)):
+        c = char_to_num(ciphertext[i])
+        k = key[i]
+        p = (c - k) % 26
+        plaintext += num_to_char(p)
+
+    return plaintext
+
+
+# 🔹 Example usage
+plaintext = "HELLO"
+
+key = generate_key(len(plaintext))
+ciphertext = encrypt(plaintext, key)
+decrypted = decrypt(ciphertext, key)
+
+print("Plaintext :", plaintext)
+print("Key       :", key)
+print("Ciphertext:", ciphertext)
+print("Decrypted :", decrypted)
