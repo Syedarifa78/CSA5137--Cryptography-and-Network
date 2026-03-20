@@ -1,0 +1,60 @@
+import numpy as np
+
+# Convert text to numbers
+def text_to_numbers(text):
+    return [ord(c) - ord('A') for c in text]
+
+def numbers_to_text(nums):
+    return ''.join(chr(n + ord('A')) for n in nums)
+
+
+# Matrix mod inverse (for 2x2)
+def mod_inverse_matrix(matrix, mod):
+    det = int(np.round(np.linalg.det(matrix))) % mod
+    
+    # Find modular inverse of determinant
+    for i in range(1, mod):
+        if (det * i) % mod == 1:
+            det_inv = i
+            break
+    else:
+        raise ValueError("Matrix not invertible")
+
+    # Adjoint matrix
+    adj = np.array([
+        [matrix[1][1], -matrix[0][1]],
+        [-matrix[1][0], matrix[0][0]]
+    ])
+
+    return (det_inv * adj) % mod
+
+
+# Encrypt
+def hill_encrypt(plaintext, K):
+    P = np.array(text_to_numbers(plaintext)).reshape(2, -1)
+    C = np.dot(K, P) % 26
+    return numbers_to_text(C.flatten())
+
+
+# Known plaintext attack
+def recover_key(plaintext, ciphertext):
+    P = np.array(text_to_numbers(plaintext)).reshape(2, -1)
+    C = np.array(text_to_numbers(ciphertext)).reshape(2, -1)
+
+    P_inv = mod_inverse_matrix(P, 26)
+    K = np.dot(C, P_inv) % 26
+
+    return K
+
+
+# 🔹 Example
+K = np.array([[3, 3], [2, 5]])  # secret key
+
+plaintext = "HELP"
+ciphertext = hill_encrypt(plaintext, K)
+
+recovered_K = recover_key(plaintext, ciphertext)
+
+print("Original Key:\n", K)
+print("Ciphertext:", ciphertext)
+print("Recovered Key:\n", recovered_K)
