@@ -1,0 +1,46 @@
+# Simplified DES Implementation (Feistel Structure)
+
+def f(right, key):
+    # Simple round function (real DES uses expansion + S-boxes)
+    return right ^ key
+
+
+def des_encrypt(plaintext, key):
+    # Split 64-bit block into two 32-bit halves
+    left = (plaintext >> 32) & 0xFFFFFFFF
+    right = plaintext & 0xFFFFFFFF
+
+    # 16 Feistel rounds
+    for _ in range(16):
+        temp = right
+        right = left ^ f(right, key)
+        left = temp
+
+    # Combine halves (swap at end)
+    return (right << 32) | left
+
+
+def des_decrypt(ciphertext, key):
+    # Split into halves
+    left = (ciphertext >> 32) & 0xFFFFFFFF
+    right = ciphertext & 0xFFFFFFFF
+
+    # Reverse process
+    for _ in range(16):
+        temp = left
+        left = right ^ f(left, key)
+        right = temp
+
+    return (left << 32) | right
+
+
+# Example usage
+plaintext = 0x12345678ABCDEF00
+key = 0x0F1571C9  # 32-bit simplified key
+
+ciphertext = des_encrypt(plaintext, key)
+decrypted = des_decrypt(ciphertext, key)
+
+print("Plaintext :", hex(plaintext))
+print("Ciphertext:", hex(ciphertext))
+print("Decrypted :", hex(decrypted))
