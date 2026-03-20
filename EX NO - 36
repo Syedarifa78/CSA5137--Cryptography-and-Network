@@ -1,0 +1,54 @@
+# Affine Caesar Cipher
+
+def char_to_num(c):
+    return ord(c) - ord('A')
+
+def num_to_char(n):
+    return chr(n + ord('A'))
+
+# Find modular inverse of a mod 26
+def mod_inverse(a, m):
+    for i in range(1, m):
+        if (a * i) % m == 1:
+            return i
+    return None  # No inverse exists
+
+# Encryption
+def encrypt(plaintext, a, b):
+    plaintext = plaintext.upper().replace(" ", "")
+    cipher = ""
+
+    for ch in plaintext:
+        p = char_to_num(ch)
+        c = (a * p + b) % 26
+        cipher += num_to_char(c)
+
+    return cipher
+
+# Decryption
+def decrypt(ciphertext, a, b):
+    a_inv = mod_inverse(a, 26)
+    if a_inv is None:
+        raise ValueError("Invalid key: 'a' has no modular inverse")
+
+    plaintext = ""
+    for ch in ciphertext:
+        c = char_to_num(ch)
+        p = (a_inv * (c - b)) % 26
+        plaintext += num_to_char(p)
+
+    return plaintext
+
+
+# 🔹 Example
+a = 5   # must be coprime with 26
+b = 8
+
+plaintext = "HELLO"
+
+cipher = encrypt(plaintext, a, b)
+decrypted = decrypt(cipher, a, b)
+
+print("Plaintext :", plaintext)
+print("Ciphertext:", cipher)
+print("Decrypted :", decrypted)
