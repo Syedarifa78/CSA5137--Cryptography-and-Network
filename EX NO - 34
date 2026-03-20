@@ -1,0 +1,81 @@
+BLOCK_SIZE = 8  # 8 bytes = 64 bits
+
+# Simple "block cipher" (XOR with key)
+def encrypt_block(block, key):
+    return bytes([b ^ k for b, k in zip(block, key)])
+
+def decrypt_block(block, key):
+    return encrypt_block(block, key)  # XOR is symmetric
+
+
+# 🔹 Padding: 1 bit + zeros (implemented as 0x80 then 0x00...)
+def pad(data):
+    padding_len = BLOCK_SIZE - (len(data) % BLOCK_SIZE)
+    if padding_len == 0:
+        padding_len = BLOCK_SIZE
+    return data + bytes([0x80] + [0x00] * (padding_len - 1))
+
+
+def unpad(data):
+    i = len(data) - 1
+    while data[i] == 0x00:
+        i -= 1
+    if data[i] == 0x80:
+        return data[:i]
+    return data
+
+
+# 🔹 ECB Mode
+def ecb_encrypt(plaintext, key):
+    plaintext = pad(plaintext)
+    ciphertext = b""
+    for i in range(0, len(plaintext), BLOCK_SIZE):
+        block = plaintext[i:i+BLOCK_SIZE]
+        ciphertext += encrypt_block(block, key)
+    return ciphertext
+
+
+# 🔹 CBC Mode
+def cbc_encrypt(plaintext, key, iv):
+    plaintext = pad(plaintext)
+    ciphertext = b""
+    prev = iv
+
+    for i in range(0, len(plaintext), BLOCK_SIZE):
+        block = plaintext[i:i+BLOCK_SIZE]
+        block = bytes([b ^ p for b, p in zip(block, prev)])
+        enc = encrypt_block(block, key)
+        ciphertext += enc
+        prev = enc
+
+    return ciphertext
+
+
+# 🔹 CFB Mode (no padding strictly required, but included here)
+def cfb_encrypt(plaintext, key, iv):
+    plaintext = pad(plaintext)
+    ciphertext = b""
+    prev = iv
+
+    for i in range(0, len(plaintext), BLOCK_SIZE):
+        keystream = encrypt_block(prev, key)
+        block = plaintext[i:i+BLOCK_SIZE]
+        enc = bytes([b ^ k for b, k in zip(block, keystream)])
+        ciphertext += enc
+        prev = enc
+
+    return ciphertext
+
+
+# 🔹 Example
+key = b"12345678"
+iv = b"initvect"
+plaintext = b"HELLO WORLD"
+
+ecb = ecb_encrypt(plaintext, key)
+cbc = cbc_encrypt(plaintext, key, iv)
+cfb = cfb_encrypt(plaintext, key, iv)
+
+print("ECB:", ecb)
+print("CBC:", cbc)
+print("CFB:", cfb)
