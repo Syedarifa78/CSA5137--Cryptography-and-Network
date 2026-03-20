@@ -1,0 +1,36 @@
+import random
+from hashlib import sha1
+
+# Small example parameters (not secure, just demo)
+p = 23
+q = 11
+g = 4
+
+# Private key
+x = random.randint(1, q-1)
+
+# Public key
+y = pow(g, x, p)
+
+def sign(message):
+    h = int(sha1(message.encode()).hexdigest(), 16)
+    
+    while True:
+        k = random.randint(1, q-1)  # random each time
+        r = pow(g, k, p) % q
+        if r == 0:
+            continue
+        
+        k_inv = pow(k, -1, q)
+        s = (k_inv * (h + x * r)) % q
+        if s != 0:
+            return (r, s)
+
+# Same message signed twice
+msg = "HELLO"
+
+sig1 = sign(msg)
+sig2 = sign(msg)
+
+print("Signature 1:", sig1)
+print("Signature 2:", sig2)
