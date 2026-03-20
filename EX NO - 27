@@ -1,0 +1,24 @@
+# RSA parameters (example small values for demo)
+e = 7
+n = 187  # small modulus for demonstration
+
+# Step 1: Build dictionary
+encryption_table = {}
+
+for i in range(26):
+    c = pow(i, e, n)
+    encryption_table[c] = i
+
+print("Encryption Table (Ciphertext -> Plaintext):")
+print(encryption_table)
+
+# Step 2: Suppose intercepted ciphertext
+ciphertext_message = [pow(i, e, n) for i in [7, 4, 11, 11, 14]]  # HELLO
+
+# Step 3: Decrypt using dictionary
+decrypted = [encryption_table[c] for c in ciphertext_message]
+
+# Convert to letters
+message = ''.join(chr(i + ord('A')) for i in decrypted)
+
+print("Decrypted Message:", message)
