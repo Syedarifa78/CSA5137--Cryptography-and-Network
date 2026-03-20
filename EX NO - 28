@@ -1,0 +1,22 @@
+# Diffie-Hellman Key Exchange
+
+# Public values
+q = 23   # prime number
+a = 5    # primitive root
+
+# Alice's secret
+x = 6
+A = pow(a, x, q)  # A = a^x mod q
+
+# Bob's secret
+y = 15
+B = pow(a, y, q)  # B = a^y mod q
+
+# Shared key calculation
+key_alice = pow(B, x, q)
+key_bob = pow(A, y, q)
+
+print("Alice sends:", A)
+print("Bob sends:", B)
+print("Shared key (Alice):", key_alice)
+print("Shared key (Bob):", key_bob)
