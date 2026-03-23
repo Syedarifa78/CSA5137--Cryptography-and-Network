@@ -1,0 +1,87 @@
+import random
+import string
+
+# English letter frequency (for scoring)
+ENGLISH_FREQ_ORDER = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+
+# Sample common English words (for scoring boost)
+COMMON_WORDS = ["THE", "AND", "IS", "TO", "OF", "IN", "THAT", "IT", "FOR"]
+
+ALPHABET = string.ascii_uppercase
+
+# Generate random substitution key
+def random_key():
+    letters = list(ALPHABET)
+    random.shuffle(letters)
+    return dict(zip(ALPHABET, letters))
+
+# Decrypt using key
+def decrypt(ciphertext, key):
+    return ''.join(key.get(c, c) for c in ciphertext)
+
+# Score text based on English likeness
+def score_text(text):
+    score = 0
+
+    # Reward common words
+    for word in COMMON_WORDS:
+        if word in text:
+            score += 20
+
+    # Frequency scoring (simple)
+    for i, char in enumerate(ENGLISH_FREQ_ORDER):
+        score += text.count(char) * (26 - i)
+
+    return score
+
+# Swap two letters in key
+def mutate_key(key):
+    a, b = random.sample(ALPHABET, 2)
+    new_key = key.copy()
+
+    # swap values
+    for k in new_key:
+        if new_key[k] == a:
+            new_key[k] = b
+        elif new_key[k] == b:
+            new_key[k] = a
+
+    return new_key
+
+# Main attack
+def monoalphabetic_attack(ciphertext, iterations=1000, top_n=10):
+    results = []
+
+    for _ in range(iterations):
+        key = random_key()
+        best_key = key
+        best_score = score_text(decrypt(ciphertext, key))
+
+        # Hill climbing
+        for _ in range(500):
+            new_key = mutate_key(best_key)
+            decrypted = decrypt(ciphertext, new_key)
+            new_score = score_text(decrypted)
+
+            if new_score > best_score:
+                best_key = new_key
+                best_score = new_score
+
+        final_text = decrypt(ciphertext, best_key)
+        results.append((final_text, best_score))
+
+    # Sort by best score
+    results.sort(key=lambda x: x[1], reverse=True)
+
+    return results[:top_n]
+
+
+# ===== DRIVER CODE =====
+ciphertext = input("Enter ciphertext: ").upper()
+top_n = int(input("How many results you want (e.g., 10): "))
+
+results = monoalphabetic_attack(ciphertext, iterations=2000, top_n=top_n)
+
+print("\nTop possible plaintexts:\n")
+for i, (text, score) in enumerate(results):
+    print(f"Rank {i+1} (Score {score}):\n{text}\n")
