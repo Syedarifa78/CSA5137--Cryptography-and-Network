@@ -1,0 +1,77 @@
+import string
+
+# English letter frequency (approximate)
+ENGLISH_FREQ = {
+    'A': 8.2, 'B': 1.5, 'C': 2.8, 'D': 4.3, 'E': 12.7,
+    'F': 2.2, 'G': 2.0, 'H': 6.1, 'I': 7.0, 'J': 0.15,
+    'K': 0.77, 'L': 4.0, 'M': 2.4, 'N': 6.7, 'O': 7.5,
+    'P': 1.9, 'Q': 0.095, 'R': 6.0, 'S': 6.3, 'T': 9.1,
+    'U': 2.8, 'V': 0.98, 'W': 2.4, 'X': 0.15, 'Y': 2.0,
+    'Z': 0.074
+}
+
+# Function to decrypt using Caesar shift
+def decrypt(ciphertext, shift):
+    result = ""
+    for char in ciphertext:
+        if char.isalpha():
+            shifted = (ord(char.upper()) - ord('A') - shift) % 26
+            result += chr(shifted + ord('A'))
+        else:
+            result += char
+    return result
+
+# Calculate frequency of letters in text
+def get_frequency(text):
+    freq = dict.fromkeys(string.ascii_uppercase, 0)
+    total = 0
+
+    for char in text:
+        if char in freq:
+            freq[char] += 1
+            total += 1
+
+    if total == 0:
+        return freq
+
+    for char in freq:
+        freq[char] = (freq[char] / total) * 100
+
+    return freq
+
+# Score using Chi-Square method
+def chi_square_score(text):
+    freq = get_frequency(text)
+    score = 0
+
+    for letter in string.ascii_uppercase:
+        observed = freq[letter]
+        expected = ENGLISH_FREQ[letter]
+        score += ((observed - expected) ** 2) / expected
+
+    return score
+
+# Main attack function
+def frequency_attack(ciphertext):
+    results = []
+
+    for shift in range(26):
+        decrypted = decrypt(ciphertext, shift)
+        score = chi_square_score(decrypted)
+        results.append((shift, decrypted, score))
+
+    # Sort by lowest score (best match)
+    results.sort(key=lambda x: x[2])
+
+    return results
+
+
+# ====== DRIVER CODE ======
+ciphertext = input("Enter ciphertext: ").upper()
+
+results = frequency_attack(ciphertext)
+
+print("\nTop possible plaintexts:\n")
+for i, (shift, text, score) in enumerate(results[:5]):
+    print(f"Rank {i+1}: Shift = {shift}, Score = {score:.2f}")
+    print(f"Plaintext: {text}\n")
